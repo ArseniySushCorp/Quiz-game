@@ -2,38 +2,18 @@ import React, {Component} from "react"
 import classes from './Quiz.module.css'
 import ActiveQuiz from "../../components/ActiveQuiz/ActiveQuiz"
 import FinishedQuiz from "../../components/FinishedQuiz/FinishedQuiz"
+import axios from '../../axios/axios-quiz'
+import Loader from '../../components/UI/Loader/Loader'
 
 class Quiz extends Component{
 
 	state = {
-		results:{}, // { [id]: 'success' || 'error'}
+		results:{},
 		isFinished: false,
-		answerState: null, // { [id]: 'success' || 'error' }
+		answerState: null,
 		activeQuestion: 0,
-		quiz: [
-			{
-				id: 1,
-				rightAnswerId: 2,
-				question: 'Какого цвета небо?',
-				answers: [
-					{text: 'Черный', id: 1},
-					{text: 'Синий', id: 2},
-					{text: 'Красный', id: 3},
-					{text: 'Зеленый', id: 4}
-				]
-			},
-			{
-				id: 2,
-				rightAnswerId: 3,
-				question: 'Какое число я загадал?',
-				answers: [
-					{text: 'ПШНХ', id: 1},
-					{text: 'Арсений', id: 2},
-					{text: '3.14', id: 3},
-					{text: 'Зеленый', id: 4}
-				]
-			},
-		],
+		quiz: [],
+		loading: true
 	}
 
 	onAnswerClickHandler = answerId => {
@@ -97,8 +77,18 @@ class Quiz extends Component{
 		})
 	}
 
-	componentDidMount() {
-		console.log('Quiz ID = ', this.props.match.params.id)
+	async componentDidMount() {
+		try {
+			const response = await axios.get(`/quizes/${this.props.match.params.id}.json`)
+			const quiz = response.data
+
+			this.setState({
+				quiz,
+				loading: false
+			})
+		} catch (e) {
+
+		}
 	}
 
 	render() {
@@ -107,14 +97,18 @@ class Quiz extends Component{
 
 				<div className={ classes.QuizWrapper }>
 					<h1>Quiz</h1>
+
 					{
-						this.state.isFinished
-						? <FinishedQuiz
-							results = { this.state.results }
-							quiz = { this.state.quiz }
-							onRetry = {this.retryHandler}
+						this.state.loading
+						? <Loader/>
+
+						: this.state.isFinished
+							? <FinishedQuiz
+								results = { this.state.results }
+								quiz = { this.state.quiz }
+								onRetry = {this.retryHandler}
 							/>
-						: <ActiveQuiz
+							: <ActiveQuiz
 
 								answers = { this.state.quiz[this.state.activeQuestion].answers }
 								question = { this.state.quiz[this.state.activeQuestion].question }
