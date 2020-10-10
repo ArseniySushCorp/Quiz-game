@@ -1,4 +1,4 @@
-The game is available at this link:
+## The game is available at this link:
 https://react-quiz-8a657.web.app/
 
 ## Available Scripts
